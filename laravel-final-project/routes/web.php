@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\PostController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -23,6 +25,10 @@ Route::get('/', function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('posts', PostController::class);
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::resource('categories', CategoryController::class);
 });
 
 require __DIR__.'/auth.php';

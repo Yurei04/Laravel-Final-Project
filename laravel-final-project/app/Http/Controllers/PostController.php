@@ -1,21 +1,22 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\Post;
-use App\Http\Controllers\Controller;
+use App\Models\Category;
 use Illuminate\Http\Request;
+
 class PostController extends Controller
 {
     public function index()
     {
-        $posts = Post::latest()->get();
+        $posts = Post::with('category', 'user')->latest()->get();
         return view('posts.index', compact('posts'));
     }
 
     public function create()
     {
-        return view('posts.create');
+        $categories = Category::all();
+        return view('posts.create', compact('categories'));
     }
 
     public function store(Request $request)
@@ -23,12 +24,14 @@ class PostController extends Controller
         $request->validate([
             'title' => 'required|max:255',
             'content' => 'required',
+            'category_id' => 'required|exists:categories,id',
         ]);
 
         Post::create([
             'user_id' => auth()->id(),
             'title' => $request->title,
             'content' => $request->content,
+            'category_id' => $request->category_id,
         ]);
 
         return redirect()->route('posts.index')
@@ -37,7 +40,8 @@ class PostController extends Controller
 
     public function edit(Post $post)
     {
-        return view('posts.edit', compact('post'));
+        $categories = Category::all();
+        return view('posts.edit', compact('post', 'categories'));
     }
 
     public function update(Request $request, Post $post)
@@ -45,9 +49,14 @@ class PostController extends Controller
         $request->validate([
             'title' => 'required|max:255',
             'content' => 'required',
+            'category_id' => 'required|exists:categories,id',
         ]);
 
-        $post->update($request->all());
+        $post->update([
+            'title' => $request->title,
+            'content' => $request->content,
+            'category_id' => $request->category_id,
+        ]);
 
         return redirect()->route('posts.index')
             ->with('success', 'Post updated successfully!');
