@@ -1,2 +1,0 @@
-# Laravel Final Project
-
