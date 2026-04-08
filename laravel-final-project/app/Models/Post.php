@@ -2,7 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
+use App\Models\Category;
+use App\Models\Comment;
+use App\Models\Tag;
 
 class Post extends Model
 {
@@ -12,6 +17,7 @@ class Post extends Model
         'user_id',
         'title',
         'content',
+        'category_id',
     ];
 
     public function user()
