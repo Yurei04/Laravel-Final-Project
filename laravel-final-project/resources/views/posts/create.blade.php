@@ -51,5 +51,13 @@
             @endif
         </div>
     @endforeach
-    
+
+    <label>Tags</label>
+
+    <select name="tags[]" multiple class="border p-2 w-full">
+        @foreach(\App\Models\Tag::all() as $tag)
+            <option value="{{ $tag->id }}">{{ $tag->name }}</option>
+        @endforeach
+    </select>
+        
 </x-app-layout>

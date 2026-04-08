@@ -25,14 +25,19 @@ class PostController extends Controller
             'title' => 'required|max:255',
             'content' => 'required',
             'category_id' => 'required|exists:categories,id',
+            'tags' => 'nullable|array',
         ]);
 
-        Post::create([
+        $post = Post::create([
             'user_id' => auth()->id(),
             'title' => $request->title,
             'content' => $request->content,
             'category_id' => $request->category_id,
         ]);
+
+        if ($request->has('tags')) {
+            $post->tags()->attach($request->tags);
+        }
 
         return redirect()->route('posts.index')
             ->with('success', 'Post created successfully!');
@@ -68,5 +73,10 @@ class PostController extends Controller
 
         return redirect()->route('posts.index')
             ->with('success', 'Post deleted successfully!');
+    }
+    public function show(Post $post)
+    {
+        $post->load('comments.user', 'tags', 'category', 'user');
+        return view('posts.show', compact('post'));
     }
 }
