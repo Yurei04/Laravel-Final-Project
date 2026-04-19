@@ -6,40 +6,72 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\CommentController;
 
+/*
+|--------------------------------------------------------------------------
+| Homepage
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('posts.index');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+/*
+|--------------------------------------------------------------------------
+| PUBLIC ROUTES (NO LOGIN REQUIRED)
+|--------------------------------------------------------------------------
+*/
 
-Route::middleware('auth')->group(function () {
+// View posts (index + show only)
+Route::resource('posts', PostController::class)->only(['index', 'show', 'create']);
+
+/*
+|--------------------------------------------------------------------------
+| AUTHENTICATED ROUTES (LOGIN REQUIRED)
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth'])->group(function () {
+
+    /*
+    | Dashboard
+    */
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+
+    /*
+    | Profile
+    */
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
 
-Route::get('/', function () {
-    return view('welcome');
-});
+    /*
+    | POSTS (ALL AUTH ACTIONS)
+    | create, store, edit, update, destroy
+    */
+    Route::resource('posts', PostController::class)->except(['index', 'show']);
 
-Route::middleware(['auth'])->group(function () {
-    Route::resource('posts', PostController::class);
-});
-
-Route::middleware(['auth'])->group(function () {
+    /*
+    | CATEGORIES (FULL CRUD)
+    */
     Route::resource('categories', CategoryController::class);
-});
 
-Route::middleware(['auth'])->group(function () {
-
-    // comment routes (nested under posts)
+    /*
+    | COMMENTS
+    */
     Route::post('/posts/{post}/comments', [CommentController::class, 'store'])
         ->name('comments.store');
 
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])
         ->name('comments.destroy');
 });
+
+/*
+|--------------------------------------------------------------------------
+| AUTH ROUTES (BREEZE)
+|--------------------------------------------------------------------------
+*/
 
 require __DIR__.'/auth.php';
